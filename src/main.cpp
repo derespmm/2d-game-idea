@@ -1,4 +1,5 @@
 #include "roomGenerator.hpp"
+#include "Player.hpp"
 
 int main() {
     // 1. Get the laptop dimensions once
@@ -20,30 +21,54 @@ int main() {
     RoomGenerator room(70, 70, 1500);
     room.generate();
 
-    while (window.isOpen()) {
-        // SFML 3.0 event loop
-        while (const std::optional event = window.pollEvent()) {
-            if (event->is<sf::Event::Closed>()) {
-                window.close();
-            }
+    // Initial Spawns
+    auto spawns = room.getRandomSpawns();
+    Player player(spawns.playerStart.x, spawns.playerStart.y);
+    sf::Vector2i doorPos = spawns.doorLocation;
 
-            // Exit game with Escape key (useful for Fullscreen!)
+    // Door Visuals
+    sf::RectangleShape doorShape({10.f, 10.f});
+    doorShape.setFillColor(sf::Color::Yellow); // Gold/Yellow for the door
+
+    while (window.isOpen()) {
+        // --- EVENT POLLING ---
+        while (const std::optional event = window.pollEvent()) {
+            if (event->is<sf::Event::Closed>()) window.close();
+            
             if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
-                if (keyPressed->code == sf::Keyboard::Key::Escape) {
-                    window.close();
-                }
-                // Regenerate Room with 'R'
+                if (keyPressed->code == sf::Keyboard::Key::Escape) window.close();
+                
+                // Manual Reset with 'R'
                 if (keyPressed->code == sf::Keyboard::Key::R) {
-                    room = RoomGenerator(70, 70, 1500);
                     room.generate();
+                    auto s = room.getRandomSpawns();
+                    player.setPosition(s.playerStart);
+                    doorPos = s.doorLocation;
                 }
             }
         }
 
+        // --- GAME LOGIC ---
+        player.update(room.getGrid());
+
+        // Check if Player reached the Door
+        if (player.getGridPos() == doorPos) {
+            room.generate(); // Create new layout
+            auto nextSpawns = room.getRandomSpawns();
+            player.setPosition(nextSpawns.playerStart);
+            doorPos = nextSpawns.doorLocation;
+        }
+
+        // --- RENDERING ---
         window.clear(sf::Color(10, 10, 10));
         
-        // Everything drawn here is automatically zoomed by gameView
-        room.draw(window); 
+        room.draw(window);
+        
+        // Draw Door
+        doorShape.setPosition({static_cast<float>(doorPos.x * 10), static_cast<float>(doorPos.y * 10)});
+        window.draw(doorShape);
+
+        player.draw(window);
         
         window.display();
     }

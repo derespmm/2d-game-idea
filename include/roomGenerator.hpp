@@ -11,7 +11,15 @@ public:
     RoomGenerator(int w, int h, int target);
     void generate();
     void draw(sf::RenderWindow& window);
-    void print(); // Added this back for your console testing
+    void print(); 
+    void clearRoom();
+    const std::vector<std::vector<int>>& getGrid() const { return grid; }
+    struct SpawnPoints {
+        sf::Vector2i playerStart;
+        sf::Vector2i doorLocation;
+    };
+
+    SpawnPoints getRandomSpawns() const;
 
 private:
     int width, height, targetFloors;

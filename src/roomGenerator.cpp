@@ -11,7 +11,15 @@ RoomGenerator::RoomGenerator(int w, int h, int target)
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
 }
 
+void RoomGenerator::clearRoom() {
+    for (auto& row : grid) {
+        std::fill(row.begin(), row.end(), WALL);
+    }
+}
+
 void RoomGenerator::generate() {
+    clearRoom();
+
     int x = width / 2;
     int y = height / 2;
     int floorsCreated = 0;
@@ -34,6 +42,32 @@ void RoomGenerator::generate() {
             floorsCreated++;
         }
     }
+}
+
+RoomGenerator::SpawnPoints RoomGenerator::getRandomSpawns() const {
+    std::vector<sf::Vector2i> floorTiles;
+
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            if (grid[y][x] == FLOOR) {
+                floorTiles.push_back({x, y});
+            }
+        }
+    }
+
+    // Safety check
+    if (floorTiles.size() < 2) return {{0,0}, {1,1}};
+
+    // Pick player index
+    int pIdx = std::rand() % floorTiles.size();
+    
+    // Pick door index (ensure it's different from player)
+    int dIdx = std::rand() % floorTiles.size();
+    while (dIdx == pIdx) {
+        dIdx = std::rand() % floorTiles.size();
+    }
+
+    return {floorTiles[pIdx], floorTiles[dIdx]};
 }
 
 void RoomGenerator::draw(sf::RenderWindow& window) {
