@@ -1,0 +1,12 @@
+# The Executable
+bin/
+*.exe
+
+# VS Code folders (contains local settings and history)
+.vscode/
+.history/
+
+# MSYS2/Compiler noise
+*.o
+*.obj
+*.gch
