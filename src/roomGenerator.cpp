@@ -5,11 +5,11 @@ RoomGenerator::RoomGenerator(int target) : targetFloors(target), rng(std::random
 void RoomGenerator::generate(Room& room) {
     room.clear(WALL);
     
+    // Start exactly in the center
     int x = room.getWidth() / 2;
     int y = room.getHeight() / 2;
     int floors = 0;
     
-    // Safety: don't loop forever if the map gets crowded
     int maxAttempts = (room.getWidth() * room.getHeight()) * 2; 
     int attempts = 0;
 
@@ -18,15 +18,19 @@ void RoomGenerator::generate(Room& room) {
     while (floors < targetFloors && attempts < maxAttempts) {
         attempts++;
         
-        if (room.getTile(x, y) == WALL) {
-            room.setTile(x, y, FLOOR);
-            floors++;
+        // 1. Only place the floor if we are within the actual grid
+        if (x >= 0 && x < room.getWidth() && y >= 0 && y < room.getHeight()) {
+            if (room.getTile(x, y) == WALL) {
+                room.setTile(x, y, FLOOR);
+                floors++;
+            }
         }
         
+        // 2. Original movement: No clamping, no gravity, just pure random walk
         int dir = dist(rng);
-        if (dir == 0 && y > 1) y--;
-        else if (dir == 1 && y < room.getHeight() - 2) y++;
-        else if (dir == 2 && x > 1) x--;
-        else if (dir == 3 && x < room.getWidth() - 2) x++;
+        if (dir == 0) y--;
+        else if (dir == 1) y++;
+        else if (dir == 2) x--;
+        else if (dir == 3) x++;
     }
 }

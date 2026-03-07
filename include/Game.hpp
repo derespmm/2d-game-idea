@@ -22,9 +22,10 @@ private:
     sf::RenderWindow window;
     Room room;
     RoomGenerator generator;
-    RoomRenderer roomRenderer; // THIS MUST MATCH GAME.CPP
-    std::unique_ptr<Player> player; // THIS MUST MATCH GAME.CPP
-    PlayerRenderer playerRenderer;   // THIS MUST MATCH GAME.CPP
+    RoomRenderer roomRenderer;
+    std::unique_ptr<Player> player;
+    PlayerRenderer playerRenderer;
+    sf::Vector2f cameraPos;
     float tileSize = 12.0f;
 };
 

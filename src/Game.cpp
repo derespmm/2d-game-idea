@@ -6,15 +6,21 @@ Game::Game()
     : window(sf::VideoMode(sf::VideoMode::getDesktopMode().size), 
              "Dungeon Crawler", 
              sf::Style::Default),
-      room(70, 70),
-      generator(1000),
+      room(100, 100),
+      generator(7000),
       roomRenderer(24.0f) {
     
     // 2. Enable VSync to stop the flickering
     window.setVerticalSyncEnabled(true);
     
     generator.generate(room);
-    player = std::make_unique<Player>(room.getRandomTile(FLOOR));
+
+    sf::Vector2i startPos = room.getRandomTile(FLOOR);
+    player = std::make_unique<Player>(startPos);
+    
+    // Initialize camera exactly on the player to start
+    cameraPos = { static_cast<float>(startPos.x * 24.0f), 
+                  static_cast<float>(startPos.y * 24.0f) };
 }
 
 void Game::run() {
@@ -60,20 +66,23 @@ void Game::render() {
     float tileSize = 24.0f;
     sf::Vector2i pos = player->getGridPos();
 
-    // 3. Center the camera on the player (snapped to whole pixels)
-    sf::Vector2f playerPos(
-        std::round(static_cast<float>(pos.x) * tileSize), 
-        std::round(static_cast<float>(pos.y) * tileSize)
+    // 1. Where we WANT the camera to be
+    sf::Vector2f targetPos(
+        static_cast<float>(pos.x) * tileSize, 
+        static_cast<float>(pos.y) * tileSize
     );
 
-    // 4. Set the view size to match the window's actual interior size
-    // This allows you to resize the window and see more/less of the world
-    sf::Vector2f viewSize(
-        static_cast<float>(window.getSize().x),
-        static_cast<float>(window.getSize().y)
-    );
+    // 2. Smoothly move cameraPos toward targetPos
+    // The 0.1f value controls the "snappiness". 
+    // Higher (e.g., 0.2f) = faster, Lower (e.g., 0.05f) = slower/lazier.
+    float smoothing = 0.1f; 
+    cameraPos.x += (targetPos.x - cameraPos.x) * smoothing;
+    cameraPos.y += (targetPos.y - cameraPos.y) * smoothing;
 
-    sf::View view(playerPos, viewSize);
+    // 3. Create view using our smoothed cameraPos
+    sf::View view(cameraPos, {static_cast<float>(window.getSize().x), 
+                              static_cast<float>(window.getSize().y)});
+    
     window.setView(view);
 
     roomRenderer.draw(window, room);
