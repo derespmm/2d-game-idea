@@ -8,6 +8,7 @@ class RoomGenerator {
 public:
     RoomGenerator(int targetFloors);
     void generate(Room& room);
+    void removeDisconnectedTiles(Room& room);
 
 private:
     int targetFloors;

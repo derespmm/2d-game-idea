@@ -22,9 +22,13 @@ public:
     // Logic for finding points of interest
     sf::Vector2i getRandomTile(TileType type) const;
 
+    sf::Vector2i getDoorPos() const { return doorPos; }
+    void setDoorPos(sf::Vector2i pos) { doorPos = pos; }
+
 private:
     int width, height;
     std::vector<std::vector<int>> grid;
+    sf::Vector2i doorPos;
 };
 
 #endif

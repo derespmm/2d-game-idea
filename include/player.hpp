@@ -8,10 +8,6 @@ class Player {
 public:
     Player(sf::Vector2i startPos);
     void move(sf::Vector2i direction, const Room& room);
-
-    // Getters/Setters for the movement logic
-    sf::Vector2i getLastDir() const { return lastDir; }
-    void setLastDir(sf::Vector2i dir) { lastDir = dir; }
     
     // Accessor for the move clock
     sf::Clock& getClock() { return moveClock; }
@@ -21,7 +17,6 @@ public:
 
 private:
     sf::Vector2i gridPos;
-    sf::Vector2i lastDir = {0, 0}; // Tracks the direction of the previous movement
     sf::Clock moveClock;
     const float movementDelay = 0.15f;
 };

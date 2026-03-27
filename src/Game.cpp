@@ -6,7 +6,7 @@ Game::Game()
     : window(sf::VideoMode(sf::VideoMode::getDesktopMode().size), 
              "Dungeon Crawler", 
              sf::Style::Default),
-      room(100, 100),
+      room(120, 120),
       generator(7000),
       roomRenderer(24.0f) {
     
@@ -57,6 +57,14 @@ void Game::update() {
 
     if (dir.x != 0 || dir.y != 0) {
         player->move(dir, room);
+    }
+
+    // New Level Check
+    if (player->getGridPos() == room.getDoorPos()) {
+        generator.generate(room);
+        player->setGridPos(room.getRandomTile(FLOOR));
+        // Optional: Ensure the door isn't immediately under the player
+        // by picking a new door position here if needed
     }
 }
 
